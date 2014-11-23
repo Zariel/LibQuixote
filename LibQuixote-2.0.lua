@@ -217,8 +217,8 @@ do
 	StaticPopupDialogs["ABANDON_QUEST_WITH_ITEMS"].OnAccept = abandon_items_onaccept
 end
 
-local objects_pattern = '^' .. QUEST_OBJECTS_FOUND:gsub('(%%%d?$?.)', '(.+)') .. '$' --QUEST_OBJECTS_FOUND = "%s: %d/%d"
-local monsters_pattern = '^' .. QUEST_MONSTERS_KILLED:gsub('(%%%d?$?.)', '(.+)') .. '$' --QUEST_MONSTERS_KILLED = "%s slain: %d/%d"
+local objects_pattern = '^(%d+)/(%d+) (.+)$' --QUEST_OBJECTS_FOUND = "%s: %d/%d"
+local monsters_pattern = '^(%d+)/(%d+) (.*) slain$' --QUEST_MONSTERS_KILLED = "%s slain: %d/%d"
 local faction_pattern = '^' .. QUEST_FACTION_NEEDED:gsub('(%%%d?$?.)', '(.+)') .. '$' --QUEST_FACTION_NEEDED = "%s: %s / %s"
 local player_pattern = '^' .. QUEST_PLAYERS_KILLED:gsub('(%%%d?$?.)', '(.+)') .. '$' --QUEST_PLAYERS_KILLED = "Players slain: %d/%d"
 
