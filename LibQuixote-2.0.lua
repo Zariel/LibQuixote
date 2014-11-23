@@ -298,50 +298,49 @@ function frame:QUEST_LOG_UPDATE()
 						local desc, qtype, done = GetQuestLogLeaderBoard(o, id)
 						local numNeeded, numItems, mobName
 
-						if (not desc) or strtrim(desc) == "" then
-							trouble = trouble + 1
+						if qtype == 'item' or qtype == 'object' then --'object' for the leaderboard in Dousing the Flames of Protection; maybe others.
+							numItems, numNeeded, desc = desc:match(objects_pattern)
+							numItems = tonumber(numItems)
+							numNeeded = tonumber(numNeeded)
+							quest_items[desc] = unique_id
+						elseif qtype == 'monster' then
+							numItems, numNeeded, mobName = desc:match(monsters_pattern)
+							if mobName == nil or numItems == nil or numNeeded == nil then
+								--Sometimes we get objectives like "Find Mankrik's Wife: 0/1", which are listed as "monster".
+								numItems, numNeeded, mobName = desc:match(objects_pattern)
+							end
+							numItems = tonumber(numItems)
+							numNeeded = tonumber(numNeeded)
+							desc = mobName
+
+							if quest_mobs[desc] then
+								--Another quest also wants this mob!  Convert quest_mobs[desc] to a table.
+								if type(quest_mobs[desc]) ~= 'table' then
+									quest_mobs[desc] = new(quest_mobs[desc])
+								end
+								table.insert(quest_mobs[desc], unique_id)
+							else
+								quest_mobs[desc] = unique_id
+							end
+						elseif qtype == 'reputation' then
+							desc, numItems, numNeeded = desc:match(faction_pattern)
+						elseif (qtype == 'event') or (qtype == 'log') then
+							numNeeded = 1
+							numItems = done and 1 or 0
+						elseif qtype == 'player' then
+							numItems, numNeeded = desc:match(player_pattern)
+							desc = COMBATLOG_FILTER_STRING_HOSTILE_PLAYERS -- "Enemy Players"
+						elseif qtype == 'spell' then
+							-- desc can stay as-is
+							numItems = done and 1 or 0
+							numNeeded = 1
 						else
-							if qtype == 'item' or qtype == 'object' then --'object' for the leaderboard in Dousing the Flames of Protection; maybe others.
-								desc, numItems, numNeeded = desc:match(objects_pattern)
-								numItems = tonumber(numItems)
-								numNeeded = tonumber(numNeeded)
-								quest_items[desc] = unique_id
-							elseif qtype == 'monster' then
-								mobName, numItems, numNeeded = desc:match(monsters_pattern)
-								if mobName == nil or numItems == nil or numNeeded == nil then
-									--Sometimes we get objectives like "Find Mankrik's Wife: 0/1", which are listed as "monster".
-									mobName, numItems, numNeeded = desc:match(objects_pattern)
-								end
-								numItems = tonumber(numItems)
-								numNeeded = tonumber(numNeeded)
-								desc = mobName
-								
-								if quest_mobs[desc] then
-									--Another quest also wants this mob!  Convert quest_mobs[desc] to a table.
-									if type(quest_mobs[desc]) ~= 'table' then
-										quest_mobs[desc] = new(quest_mobs[desc])
-									end
-									table.insert(quest_mobs[desc], unique_id)
-								else
-									quest_mobs[desc] = unique_id
-								end
-							elseif qtype == 'reputation' then
-								desc, numItems, numNeeded = desc:match(faction_pattern)
-							elseif (qtype == 'event') or (qtype == 'log') then
-								numNeeded = 1
-								numItems = done and 1 or 0
-							elseif qtype == 'player' then
-								numItems, numNeeded = desc:match(player_pattern)
-								desc = COMBATLOG_FILTER_STRING_HOSTILE_PLAYERS -- "Enemy Players"
-							elseif qtype == 'spell' then
-								-- desc can stay as-is
-								numItems = done and 1 or 0
-								numNeeded = 1
-							end
-							if desc then
-								objectives[desc] = new(numItems, numNeeded, qtype)
-								table.insert(quest_objectives[unique_id], desc)
-							end
+							print("unknown qtype:", qtype)
+						end
+
+						if desc and strlen(desc) > 0 then
+							objectives[desc] = new(numItems, numNeeded, qtype)
+							table.insert(quest_objectives[unique_id], desc)
 						end
 						quest_objective_status[unique_id] = objectives
 					end
