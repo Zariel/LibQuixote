@@ -231,26 +231,26 @@ function frame:QUEST_LOG_UPDATE()
 		return frame:Show()
 	end
 	update_is_running = true
-	
+
 	doAll(deepDel, lib.quest_ids, lib.quest_zones, lib.quest_mobs, lib.quest_items, lib.zones)
-	
+
 	local quests, old_quests = new(), lib.quests
 	local quest_objective_status, old_quest_objective_status = new(), lib.quest_objective_status
 	local quest_zones, old_quest_zones = new(), lib.quest_zones
 	local quest_ids, zones, quest_mobs, quest_items, quest_objectives = new(), new(), new(), new(), new(), new()
-	
+
 	-- The quest log is scanned:
 	local numEntries, numQuests = GetNumQuestLogEntries()
 	local numQuestsComplete = 0
 	local zone
-	
+
 	Debug("entries", numEntries, numQuests)
 
 	if numEntries > 0 then
 		local quest_count, id, overflow_handled = 0, 0, false
 		while quest_count < numQuests do
 			id = id + 1
-			local name, level, tag, group, header, collapsed, complete, daily, unique_id = GetQuestLogTitle(id)
+			local name, level, group, header, collapsed, complete, frequency, unique_id = GetQuestLogTitle(id)
 			Debug("Scan", name, header, collapsed, unique_id)
 			if header then
 				zone = name or (UNKNOWN .. " " .. id)
@@ -476,7 +476,7 @@ function frame:PARTY_MEMBERS_CHANGED()
 	if(#lib.quest_ids == 0) then return end
 	local p = new()
 	local sent
-	for i=1, GetNumPartyMembers() do
+	for i=1, GetNumGroupMembers() do
 		local name, realm = UnitName('party'..i)
 		p[name] = true
 		if lib.party[name] == nil and name ~= UNKNOWN and not realm then
